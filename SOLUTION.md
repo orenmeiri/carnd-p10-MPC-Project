@@ -31,19 +31,31 @@ steps:
 9. operator() is used to:
 	1. Calculate cost function from cte, epsi, diff of speed from desired speed, exessive use of accurators, exessive range to actuator values.
 	2. Calculate predicted states (x, y, v, psi, cte, epsi from actuators to ensure constraints set above are are not broken.
-10. e
-11. Extract from result current actuators (steering angle & acceleration) and future predicted positions from current path.
+	
+	   x[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+	   
+      y[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+      
+      psi[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+      
+      v[t+1] = v[t] + a[t] * dt
+      
+      cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+      
+      epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
+
+10. Extract from result current actuators (steering angle & acceleration) and future predicted positions from current path.
 11. Send results to simulator
 
 ###Timestep Length and Elapsed Duration (N & dt)
 
 My solution includes these set values:
 N = 10
-dt = 0.3
+dt = 0.15
 
 These values were set by trial and error.  Larger N value of 20 resulted in long computation time.
 
-For dt, I tried 0.1 but together with N = 10, calculated 1 second into the future.  I found this too short timescale which resulted in unstable control.  The value 0.3 (* 10) is 3 seconds which enabled me to calculate path 3 seconds into the future and better results.
+I tried 0.1, 0.15 and 0.3 dt.  I found that larger values predict smoother and more stable route.  It was suggested to me to avoid 0.3 as it calculates too much into the future so I reduced to 0.15 sec.
 
 ### Polynomial Fitting and MPC Preprocessing
 
@@ -56,8 +68,6 @@ Similarly the car position sent to the model is relative to the same coordinate 
 
 ### Model Predictive Control with Latency
 
-The model predicts vehicle state 0.1 seconds in the future.  A simple approach is taken for calculating position
-x' = x + v * 0.1
-y' = y (assume car is not rotating and this will not move in y axis)
+The model predicts vehicle state 0.1 seconds in the future.  All 6 state variables are computed by equations similar to those in 9.2
 
 

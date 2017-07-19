@@ -93,6 +93,8 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
+          double steering_angle = j[1]["steering_angle"];
+          double throttle = j[1]["throttle"];
 //          double psi_unity = j[1]["psi_unity"];
           Eigen::VectorXd carPosition(2);
           carPosition(0) = px;
@@ -117,8 +119,18 @@ int main() {
 
           Eigen::VectorXd state(6);
           double future_dt = 0.1;
+          double Lf = 2.67;
+
+          double psides = atan(coeffs[1]);
+
           double future_x = v * future_dt;
-          state << future_x, 0, 0, v, cte, epsi;
+          double future_y = 0;
+          double future_psi = -v / Lf * steering_angle * future_dt;
+          double future_v = v + throttle * future_dt;
+          double future_cte = cte + v * sin(epsi) * future_dt;
+          double future_epsi = psides + v * steering_angle / Lf * future_dt;
+
+          state << future_x, future_y, future_psi, future_v, future_cte, future_epsi;
 
           high_resolution_clock::time_point t1 = high_resolution_clock::now();
           auto vars = mpc.Solve(state, coeffs);
@@ -127,16 +139,15 @@ int main() {
 
           cout << duration / 1000000 << endl;
 
-          double Lf = 2.67;
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           msgJson["steering_angle"] = -vars[0] / (deg2rad(25) * Lf);
           msgJson["throttle"] = vars[1];
-          cout << "steering ";
-          cout << -vars[0];
-          cout << " throttle ";
-          cout << vars[1] << endl;
+//          cout << "steering ";
+//          cout << -vars[0];
+//          cout << " throttle ";
+//          cout << vars[1] << endl;
 
           //Display the MPC predicted trajectory 
           vector<double> mpc_x_vals;
