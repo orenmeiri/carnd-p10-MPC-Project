@@ -5,7 +5,6 @@
 
 using CppAD::AD;
 
-// TODO: Set the timestep length and duration
 size_t N = 10;
 double dt = 0.3;
 
@@ -40,7 +39,6 @@ class FG_eval {
 
   typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
   void operator()(ADvector& fg, const ADvector& vars) {
-    // TODO: implement MPC
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
     // the Solver function below.
@@ -49,8 +47,6 @@ class FG_eval {
     fg[0] = 0;
 
     // Reference State Cost
-    // TODO: Define the cost related the reference state and
-    // any anything you think may be beneficial.
     for (int t = 0; t < N; t++) {
       fg[0] += 2000 * CppAD::pow(vars[cte_start + t], 2);
       fg[0] += 2000 * CppAD::pow(vars[epsi_start + t], 2);
@@ -151,13 +147,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   double cte = state[4];
   double epsi = state[5];
 
-  // TODO: Set the number of model variables (includes both states and inputs).
-  // For example: If the state is a 4 element vector, the actuators is a 2
-  // element vector and there are 10 timesteps. The number of variables is:
-  //
-  // 4 * 10 + 2 * 9
   size_t n_vars = N * 6 + (N - 1) * 2;
-  // TODO: Set the number of constraints
   size_t n_constraints = N * 6;
 
   // Initial value of the independent variables.
@@ -176,7 +166,6 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   Dvector vars_lowerbound(n_vars);
   Dvector vars_upperbound(n_vars);
-  // TODO: Set lower and upper limits for variables.
   // Set all non-actuators upper and lowerlimits
   // to the max negative and positive values.
   for (int i = 0; i < delta_start; i++) {
